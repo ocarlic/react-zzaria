@@ -1,26 +1,24 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { Component, Suspense, lazy } from 'react';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const Img = lazy(() => import('./img'));
+const P = lazy(() => import('./p'));
+const A = lazy(() => import('./a'));
+
+class App extends Component {
+  render() {
+    return (
+      <div className="App">
+        <header className="App-header">
+        <Suspense fallback={<h1>Carregando...</h1>}>
+          <Img />
+          <P />
+          <A />
+        </Suspense>
+        </header>
+      </div>
+    );
+  }
 }
 
 export default App;
