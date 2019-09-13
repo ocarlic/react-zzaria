@@ -1,7 +1,21 @@
 import React from 'react'
 import styled from 'styled-components'
+import firebase from 'firebase/app'
+import 'firebase/auth'
 import { Button, Grid } from '@material-ui/core'
 import { ReactComponent as MainLogo } from './logo-react-zzaria.svg'
+
+var firebaseConfig = {
+  apiKey: "AIzaSyAMxdrpMAjR5Anay4txtoD5BWjEmX3cVaE",
+  authDomain: "reactzzaria-00.firebaseapp.com",
+  databaseURL: "https://reactzzaria-00.firebaseio.com",
+  projectId: "reactzzaria-00",
+  storageBucket: "",
+  messagingSenderId: "1096722069917",
+  appId: "1:1096722069917:web:e19fe0b92a002d5c565774"
+};
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
 
 const Login = () => (
   <Container>
@@ -11,7 +25,11 @@ const Login = () => (
       </Grid>
 
       <Grid item xs={12} container justify='center'>
-        <GitHubButton>
+        <GitHubButton
+          onClick={() => {
+            const provider = new firebase.auth.GithubAuthProvider()
+            firebase.auth().signInWithRedirect(provider)
+          }}>
           Entrar com Github
         </GitHubButton>
       </Grid>
