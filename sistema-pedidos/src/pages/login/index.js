@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { PureComponent } from 'react'
 import styled from 'styled-components'
 import firebase from 'firebase/app'
 import 'firebase/auth'
@@ -17,25 +17,67 @@ var firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-const Login = () => (
-  <Container>
-    <Grid container justify='center' spacing={3}>
-      <Grid item>
-        <Logo />
-      </Grid>
+class Login extends PureComponent {
 
-      <Grid item xs={12} container justify='center'>
-        <GitHubButton
-          onClick={() => {
-            const provider = new firebase.auth.GithubAuthProvider()
-            firebase.auth().signInWithRedirect(provider)
-          }}>
-          Entrar com Github
-        </GitHubButton>
-      </Grid>
-    </Grid>
-  </Container>
-)
+  state = {
+    isUserLoggedIn: false,
+    user: null
+  }
+
+  login() {
+    const provider = new firebase.auth.GithubAuthProvider()
+    firebase.auth().signInWithRedirect(provider)
+  }
+
+  logout = () => {
+    firebase.auth().signOut().then(() => {
+      console.log('deslogou')
+      this.setState({ isUserLoggedIn: false })
+    })
+  }
+
+  componentDidMount() {
+    firebase.auth().onAuthStateChanged((user) => {
+      this.setState({
+        isUserLoggedIn: !!user,
+        user
+      })
+    })
+  }
+
+  render() {
+    const { isUserLoggedIn, user } = this.state
+    return (
+      <Container>
+        <Grid container justify='center' spacing={3}>
+          <Grid item>
+            <Logo />
+          </Grid>
+
+          <Grid item xs={12} container justify='center'>
+            {isUserLoggedIn && (
+              <>
+                <pre>{user.displayName}</pre>
+                <button
+                  variant='contained'
+                  onClick={this.logout}
+                >
+                  Sair
+                </button>
+              </>
+            )}
+            {!isUserLoggedIn && (
+              <GitHubButton
+                onClick={this.login}>
+                Entrar com Github
+              </GitHubButton>
+            )}
+          </Grid>
+        </Grid>
+      </Container>
+    )
+  }
+}
 
 const Container = styled.div`
   padding: 20px;
