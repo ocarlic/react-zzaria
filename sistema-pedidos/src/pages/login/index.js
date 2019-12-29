@@ -1,11 +1,11 @@
-import React, { PureComponent } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import styled from 'styled-components'
 import firebase from 'firebase/app'
 import 'firebase/auth'
 import { Button, Grid } from '@material-ui/core'
 import { ReactComponent as MainLogo } from './logo-react-zzaria.svg'
 
-var firebaseConfig = {
+const firebaseConfig = {
   apiKey: "AIzaSyAMxdrpMAjR5Anay4txtoD5BWjEmX3cVaE",
   authDomain: "reactzzaria-00.firebaseapp.com",
   databaseURL: "https://reactzzaria-00.firebaseio.com",
@@ -14,70 +14,73 @@ var firebaseConfig = {
   messagingSenderId: "1096722069917",
   appId: "1:1096722069917:web:e19fe0b92a002d5c565774"
 };
+
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-class Login extends PureComponent {
-
-  state = {
+function Login() {
+  const [ userInfo, setUserInfo ] = useState({
     isUserLoggedIn: false,
     user: null
-  }
+  })
 
-  login() {
+  const { isUserLoggedIn, user } = userInfo
+
+  const login = useCallback(() => {
     const provider = new firebase.auth.GithubAuthProvider()
     firebase.auth().signInWithRedirect(provider)
-  }
+  }, [])
 
-  logout = () => {
+  const logout = useCallback(() => {
     firebase.auth().signOut().then(() => {
-      console.log('deslogou')
-      this.setState({ isUserLoggedIn: false })
+      setUserInfo({
+        isUserLoggedIn: false,
+        user: null
+      })
     })
-  }
+  }, [])
 
-  componentDidMount() {
+  useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
-      this.setState({
+      setUserInfo({
         isUserLoggedIn: !!user,
         user
       })
     })
-  }
+  }, [])
 
-  render() {
-    const { isUserLoggedIn, user } = this.state
-    return (
-      <Container>
-        <Grid container justify='center' spacing={3}>
-          <Grid item>
-            <Logo />
-          </Grid>
-
-          <Grid item xs={12} container justify='center'>
-            {isUserLoggedIn && (
-              <>
-                <pre>{user.displayName}</pre>
-                <button
-                  variant='contained'
-                  onClick={this.logout}
-                >
-                  Sair
-                </button>
-              </>
-            )}
-            {!isUserLoggedIn && (
-              <GitHubButton
-                onClick={this.login}>
-                Entrar com Github
-              </GitHubButton>
-            )}
-          </Grid>
+  return (
+    <Container>
+      <Grid container justify='center' spacing={3}>
+        <Grid item>
+          <Logo />
         </Grid>
-      </Container>
-    )
-  }
+
+        <Grid item xs={12} container justify='center'>
+          {isUserLoggedIn && (
+            <>
+              <pre>{user.displayName}</pre>
+              <button
+                variant='contained'
+                onClick={logout}
+              >
+                Sair
+              </button>
+            </>
+          )}
+          {!isUserLoggedIn && (
+            <GitHubButton
+              onClick={login}>
+              Entrar com Github
+            </GitHubButton>
+          )}
+        </Grid>
+      </Grid>
+    </Container>
+  )
 }
+
+export default Login
 
 const Container = styled.div`
   padding: 20px;
@@ -98,5 +101,3 @@ const GitHubButton = styled(Button).attrs({
     text-transform: none;
   }
 `;
-
-export default Login
